@@ -1,0 +1,119 @@
+<template>
+  <div>
+    <Navigation />
+    <div class="container mx-auto xl:px-36 " v-if="seller[0] && goods[0]">
+
+      <div style=" border-bottom: 1px solid #282828 " class="w-full py-5 border-b flex  justify-between" v-for=" item,i in seller" :key='item.sel_id'>
+        <div class="flex " @click="StoreDetails(item.sel_id)">
+          <div class="border w-28 h-28 mr-7  cursor-pointer">
+            <img :src="item.sel_img" alt="" class='w-full h-full'>
+          </div>
+          <div class="cursor-pointer inline-block">
+             <svg
+              t="1651662869339"
+              viewBox="0 0 1024 1024"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              p-id="2243"
+              width="24"
+              height="24"
+              class="icon inline-block"
+            >
+              <path
+                d="M245.333333 533.333333v288h512V533.333333h64v352h-640V533.333333h64zM834.624 139.050667l45.077333 150.869333a149.333333 149.333333 0 0 1-255.722666 139.52l-3.669334-4.330667L618.666667 423.04l-1.642667 2.090667a149.248 149.248 0 0 1-104.533333 54.485333l-6.016 0.32-5.141334 0.085333a149.12 149.12 0 0 1-112.021333-50.56l-3.669333-4.330666L384 423.04l-1.642667 2.090667a149.248 149.248 0 0 1-104.533333 54.485333l-6.016 0.32-5.141333 0.085333a149.333333 149.333333 0 0 1-145.301334-183.808l1.792-6.890666 45.909334-150.250667h665.557333z m-47.68 63.978666H216.426667L184.533333 307.370667a84.693333 84.693333 0 0 0-2.389333 11.456l-0.597333 5.888-0.213334 5.952a85.333333 85.333333 0 0 0 169.813334 12.16l0.512-4.352 2.624-29.12h59.434666l2.624 29.12a85.333333 85.333333 0 0 0 169.472 4.330666l0.512-4.330666 2.624-29.12h59.434667l2.624 29.12a85.333333 85.333333 0 1 0 168.32-26.346667l-1.066667-4.330667-31.317333-104.768z"
+                fill="#1677FF"
+                p-id="2244"
+              ></path>
+            </svg>
+            <span
+              class="
+               
+                 text-base
+                hover:text-blue-500 hover:border-b hover:border-blue-500
+              "
+              >{{item.sel_store}}</span
+            >
+           
+          </div>
+        </div>
+
+        <div>
+          <div class=" flex">
+            <div  class=" w-56 h-64 border  mx-2 px-6 flex flex-col justify-between cursor-pointer"  v-for="items in goods[i]" :key="items.goods_id" @click='goshop(items.goods_id)'>
+                <img :src="items.goods_img" alt="" class=" w-full h-4/5"> 
+                <span class=' text-sm text-gray-600'>￥{{items.goods_discount}}</span>
+            </div>
+         
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+export default {
+  components: {
+    Navigation: () => import("../Universal/navigation.vue"),
+  },
+  data(){
+    return{
+      seller:[],
+      goods:[]
+    }
+  },
+  methods: {
+    StoreDetails(id){
+      const { href } = this.$router.resolve({
+        name: "StoreDetails",
+        query: {
+          id: id,
+        },
+      });
+      window.open(href, "_blank");
+    },
+    goshop(id){
+     
+      const { href } = this.$router.resolve({
+        name: "Details",
+        query: {
+          id: id,
+        },
+      });
+      window.open(href, "_blank");
+ 
+      
+    }
+  },
+  mounted() {
+    console.log(sessionStorage.getItem('sel_store'),'ss');
+    axios({
+      method: "get",
+      url: "http://localhost:8080/api/getTab_seller",
+      params: {
+        sel_store:sessionStorage.getItem('sel_store')
+      }
+    }).then(res=>{
+      this.seller =res.data
+      console.log(res.data);
+      for(let i=0;i<res.data.length;i++){
+        axios({
+          method: "get",
+          url: "http://localhost:8080/api/getGoods",
+          params: {
+            sel_id:res.data[i].sel_id
+          }
+        }).then(res1=>{
+          this.goods.push(res1.data) 
+          console.log(this.goods,this.seller);
+        })
+      }
+    })
+  }
+};
+</script>
+
+<style>
+</style>
